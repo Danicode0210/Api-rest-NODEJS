@@ -1,30 +1,32 @@
-const Posts = require('../models/Posts')
+const Like = require('../models/Likes')
 
-const addPost = (req , res) => {
-    
-    // Id de user
-    const {body} = req; 
-    body.id = req.paramsId;
-    
-    const post = new Posts ({ 
-        userId: req.body.userId,
-        like: 0,
-        description: req.body.description,
-        createdAt: new Date()
-    })     
+const addLike = async(req, res) => {
+    try {
+        const like = new Like({
+            postId: req.body.postId,
+            userId: req.body.userId,
+            active: req.body.active
+        })
+        like.save( (likes) => {
+            return res.status(201).json(likes) 
+        })
+    } catch (error) {
+        return res.status(500).send({message:'error'})
+    }
 }
 
-const findAllPost = (req , res) => {
-    Posts.find( (err , posts ) => {
+const findAllLike = (req , res) => {
+    
+    Like.find( (err , likes ) => {
         err && res.status(500).send(err.message),
-        res.status(200).json(posts) 
+        res.status(200).json(likes) 
     } )
 }
 
-const findPostId = (req , res) => {
-    Posts.findById( req.params.id , (err , posts ) => {
+const findLikeId = (req , res) => {
+    Like.findById( req.params.id , (err , likes ) => {
         err && res.status(500).send(err.message),
-        res.status(200).json(posts) 
+        res.status(200).json(likes) 
     } )
 }
 
@@ -34,7 +36,7 @@ const editAll = async(req, res) => {
         const filter = { _id: req.params.id }
         const update = body;
 
-        const doc = await Posts.findOneAndUpdate(filter, update, { new: true });
+        const doc = await Like.findOneAndUpdate(filter, update, { new: true });
 
         if (!doc)
             return res.status(404).json({ message: `_id ${req.params.id} doesn't exists` });
@@ -50,7 +52,7 @@ const editSomeone = async(req, res) => {
         const filter = { _id: req.params.id };
         const update = body;
         delete body._id
-        const doc = await Posts.findOneAndUpdate(filter, update, { new: true });
+        const doc = await Like.findOneAndUpdate(filter, update, { new: true });
 
         if (!doc)
             return res.status(404).json({ message: `_id ${req.params.id} doesn't exists` })
@@ -65,7 +67,7 @@ const remove = async(req,res) => {
     try {
         console.log(req.params.id);
         const filter = {_id:req.params.id}
-        let response = await Posts.remove(filter)
+        let response = await Like.remove(filter)
         res.status(200).json({OK: true, deletedcount: response.deletedcount})
         
     } catch (error) {
@@ -73,6 +75,4 @@ const remove = async(req,res) => {
     }
 }
 
-
-
-module.exports = { addPost , findAllPost , findPostId , remove, editAll, editSomeone}
+module.exports = { addLike, findAllLike, findLikeId, editAll, editSomeone, remove }
