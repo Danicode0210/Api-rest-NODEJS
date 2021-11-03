@@ -31,4 +31,6 @@ const addUser = (req,res) =>{
     });
 };
 
+
+
 module.exports={findAllUsers,findById,addUser}
